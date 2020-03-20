@@ -32,10 +32,12 @@ class ledObject(object):
         self.ri = np.zeros((sample_size,3)) #matrix to hold inital photon vectors
         self.rri = np.zeros((sample_size,3)) #matrix to hold rotated (led position) photon vectors
         self.rf = np.zeros((sample_size,3)) #matrix to hold final photon vectors after diffusor rotation
-        self.final_polar_angle = np.zeros(sample_size) #matrix to hold values of photon vector distance from pinhole direction
+        self.rpinh = np.zeros((sample_size,3)) #matrix to hold photon vectrs at pinhole
+        self.diff_polar_angle = np.zeros(sample_size) #matrix to hold values of photon vector distance from pinhole direction
 
     def calcLEDRotationMatrixes(self, dist_to_targetcenter):
         #LED position angles
+        self.dist_to_diff = dist_to_targetcenter
         pitch = calc_pitch(dist_to_targetcenter)
         yaw = calc_yaw(dist_to_targetcenter)
         #rotation matrixes to calc rri
@@ -60,6 +62,9 @@ class ledObject(object):
             self.ri[i, 2] = math.sin(self.theta[i])*math.cos(self.phi[i])
             self.rri[i,:] = np.dot(self.ri[i,:], self.Rx)
             self.rri[i,:] = np.dot(self.rri[i,:], self.Rz)
+            #boost vector to diffusor
+            m = self.dist_to_diff/self.rri[i,1]
+            self.rri[i,:] = self.rri[i,:]*m #boosted vector
             diff_polar = gauss(0, self.diff_theta) #difusor polar angle
             #polar angle in ref to y, is a rotation around the z axis
             diffRz = np.array([[math.cos(diff_polar), -math.sin(diff_polar), 0],
@@ -73,7 +78,30 @@ class ledObject(object):
             self.rf[i,:] = np.dot(self.rri[i,:], diffRz)
             self.rf[i,:] = np.dot(self.rf[i,:], diffRy)
             r = math.sqrt(math.pow(self.rf[i,0],2)+math.pow(self.rf[i,1],2)+math.pow(self.rf[i,2],2))
-            self.final_polar_angle[i] = 90 - (math.acos(self.rf[i,2]/r)*(180/math.pi))
+            self.diff_polar_angle[i] = 90 - (math.acos(self.rf[i,2]/r)*(180/math.pi))
+
+    def simPinholeEffect(self, dist_to_pinh, pinh_rad):
+        #use only after simDiffusorEffect
+        phcount = 0
+        self.cap_ph_xpos = []
+        self.cap_ph_zpos = []
+        self.cap_photons = []
+        self.cap_polar_angle = []
+        is_diam = 8.382
+        for i in range(self.sample_size):
+            m = dist_to_pinh/self.rf[i,1]
+            self.rpinh[i,:] = self.rf[i,:]*m #boosted to pinhole
+            test = math.pow(self.rpinh[i,0],2)+math.pow(self.rpinh[i,2],2)
+            if(test < math.pow(pinh_rad,2)): #if inside pinh radi, boost to cap and calc polar angle distro
+                mcap = is_diam/self.rpinh[i,1]
+                phcount += 1
+                self.cap_photons.append(self.rpinh[i,:]*mcap) #photon points at cap
+                self.cap_ph_xpos.append(self.cap_photons[-1][0])
+                self.cap_ph_zpos.append(self.cap_photons[-1][2])
+                r = math.sqrt(math.pow(self.rf[i,0],2)+math.pow(self.cap_photons[-1][1],2)+math.pow(self.cap_photons[-1][2],2))
+                self.cap_polar_angle.append(90 - (math.acos(self.cap_photons[-1][2]/r)*(180/math.pi)))
+
+        return phcount, self.cap_polar_angle
 
     def plotPhotonVectors(self):
         fig = plt.figure(2)
@@ -88,19 +116,6 @@ class ledObject(object):
         ax.set_ylim3d(-0.4, 3)
         ax.set_xlim3d(-0.4, 1)
         plt.show()
-
-    def getPhotonsThroughPinhole(self,dist, pinh_rad):
-        #distance to pinhole and pinhole radius
-        #x and z of pinh center is 0
-        count = 0
-        for i in range(0, self.sample_size):
-            projected = self.rf[i,:]*dist
-            test = math.pow(projected[0],2)+math.pow(projected[2],2)
-            if(test < math.pow(pinh_rad,2)):
-                count += 1
-        return count
-
-
 
     def _calcDistanceToPreferentialDir(self, vec):
         return math.sqrt(math.pow(vec[0],2)+math.pow(vec[1]-1,2)+math.pow(vec[2],2))
