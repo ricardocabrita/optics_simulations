@@ -2,14 +2,14 @@ from led_object import ledObject
 import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
-    sample_size = 10000
+    sample_size = 100000
     distance_to_diffusorCenter = [1.27, 2.54, 3.5, 5.08]
     light_theta = 7.5
     diff_theta = 7.5
 
     ledHalfInch = ledObject(sample_size)
     ledHalfInch.calcLEDRotationMatrixes(distance_to_diffusorCenter[0])
-    ledHalfInch.simDiffusorEffect(light_theta, diff_theta)h
+    ledHalfInch.simDiffusorEffect(light_theta, diff_theta)
 
     led1Inch = ledObject(sample_size)
     led1Inch.calcLEDRotationMatrixes(distance_to_diffusorCenter[1])
@@ -24,13 +24,23 @@ if __name__ == "__main__":
     led2Inch.simDiffusorEffect(light_theta, diff_theta)
 
     fig1 = plt.figure(1)
-    n, bins, patches = plt.hist(ledHalfInch.diff_polar_angle, 100, density=True, facecolor='g', label='0.5 inch from LED to diffusor')
-    n2, bins2, patches2 = plt.hist(led1Inch.diff_polar_angle, 100, density=True, facecolor='b', label="1 inch from LED to diffusor")
-    n2, bins2, patches2 = plt.hist(led1halfInch.diff_polar_angle, 100, density=True, facecolor='y', label="1.5 inch from LED to diffusor")
-    n2, bins2, patches2 = plt.hist(led2Inch.diff_polar_angle, 100, density=True, facecolor='r', label="2 inch from LED to diffusor")
+    n, bins, patches = plt.hist(ledHalfInch.diff_polar_angle, 100, density=True, facecolor='g', histtype='step', label='0.5 inch from LED to diffusor')
+    n2, bins2, patches2 = plt.hist(led1Inch.diff_polar_angle, 100, density=True, facecolor='b', histtype='step', label="1 inch from LED to diffusor")
+    n2, bins2, patches2 = plt.hist(led1halfInch.diff_polar_angle, 100, density=True, facecolor='y', histtype='step', label="1.5 inch from LED to diffusor")
+    n2, bins2, patches2 = plt.hist(led2Inch.diff_polar_angle, 100, density=True, facecolor='r', histtype='step', label="2 inch from LED to diffusor")
     plt.legend()
-    plt.title("Final polar angle distribution")
+    #plt.title("Final polar angle distribution")
+    plt.xlabel('degrees')
+    plt.ylabel('rel # photons')
 
+    fig2 = plt.figure(2)
+    n, bins, patches = plt.hist(ledHalfInch.diff_radi, 100, density=True, facecolor='g', histtype='step', label='0.5 inch from LED to diffusor')
+    n2, bins2, patches2 = plt.hist(led1Inch.diff_radi, 100, density=True, facecolor='b', histtype='step', label="1 inch from LED to diffusor")
+    n2, bins2, patches2 = plt.hist(led1halfInch.diff_radi, 100, density=True, facecolor='y', histtype='step', label="1.5 inch from LED to diffusor")
+    n2, bins2, patches2 = plt.hist(led2Inch.diff_radi, 100, density=True, facecolor='r', histtype='step', label="2 inch from LED to diffusor")
+    plt.legend()
+    plt.xlabel('dist to center of diff (cm)')
+    plt.ylabel('rel # photons')
     plt.show()
 
     #led2Inch.plotPhotonVectors()

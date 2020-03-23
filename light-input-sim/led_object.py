@@ -31,6 +31,7 @@ class ledObject(object):
         self.phi = np.zeros(sample_size) #matrix to hold intial light azimuthal angles
         self.ri = np.zeros((sample_size,3)) #matrix to hold inital photon vectors
         self.rri = np.zeros((sample_size,3)) #matrix to hold rotated (led position) photon vectors
+        self.diff_radi = np.zeros(sample_size)
         self.rf = np.zeros((sample_size,3)) #matrix to hold final photon vectors after diffusor rotation
         self.rpinh = np.zeros((sample_size,3)) #matrix to hold photon vectrs at pinhole
         self.diff_polar_angle = np.zeros(sample_size) #matrix to hold values of photon vector distance from pinhole direction
@@ -62,6 +63,7 @@ class ledObject(object):
             self.ri[i, 2] = math.sin(self.theta[i])*math.cos(self.phi[i])
             self.rri[i,:] = np.dot(self.ri[i,:], self.Rx)
             self.rri[i,:] = np.dot(self.rri[i,:], self.Rz)
+            self.diff_radi[i] = math.sqrt(math.pow(self.rri[i,0],2)+math.pow(self.rri[i,2],2))
             #boost vector to diffusor
             m = self.dist_to_diff/self.rri[i,1]
             self.rri[i,:] = self.rri[i,:]*m #boosted vector
