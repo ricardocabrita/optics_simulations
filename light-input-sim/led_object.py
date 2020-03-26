@@ -4,8 +4,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import math
 
-def calc_pitch(dist):
-    cat = 0.635
+def calc_pitch(dist, cat):
     h = math.sqrt(math.pow(cat,2)+math.pow(dist,2))
     dpitch = 90 - math.asin(dist/h)*(180/math.pi)
     pitch = (math.pi/2) - math.asin(dist/h)
@@ -21,7 +20,8 @@ def calc_yaw(dist):
     return yaw
 
 class ledObject(object):
-    def __init__(self, sample_size):
+    def __init__(self, sample_size, z_pos=0.66):
+        self.led_z_pos = z_pos #z position of LED in the matrix
         self.sample_size = sample_size
         #auxiliary matrixes for quiver plots starting positions
         self.zeropos = np.zeros((sample_size,3))
@@ -31,6 +31,7 @@ class ledObject(object):
         self.phi = np.zeros(sample_size) #matrix to hold intial light azimuthal angles
         self.ri = np.zeros((sample_size,3)) #matrix to hold inital photon vectors
         self.rri = np.zeros((sample_size,3)) #matrix to hold rotated (led position) photon vectors
+        self.auxrri = np.zeros((sample_size,3)) #matrix to hold rotated (led position) photon vectors
         self.diff_radi = np.zeros(sample_size)
         self.rf = np.zeros((sample_size,3)) #matrix to hold final photon vectors after diffusor rotation
         self.rpinh = np.zeros((sample_size,3)) #matrix to hold photon vectrs at pinhole
@@ -39,12 +40,12 @@ class ledObject(object):
     def calcLEDRotationMatrixes(self, dist_to_targetcenter):
         #LED position angles
         self.dist_to_diff = dist_to_targetcenter
-        pitch = calc_pitch(dist_to_targetcenter)
-        yaw = calc_yaw(dist_to_targetcenter)
+        pitch = calc_pitch(dist_to_targetcenter, self.led_z_pos)
+        #yaw = calc_yaw(dist_to_targetcenter)
         #rotation matrixes to calc rri
         self.Rx = np.array([[1, 0, 0],[0, math.cos(pitch), -math.sin(pitch)], [0, math.sin(pitch), math.cos(pitch)]])
-        self.Rz = np.array([[math.cos(yaw), -math.sin(yaw), 0],[math.sin(yaw), math.cos(yaw), 0], [0, 0, 1]])
-        return self.Rx, self.Rz
+        #self.Rz = np.array([[math.cos(yaw), -math.sin(yaw), 0],[math.sin(yaw), math.cos(yaw), 0], [0, 0, 1]])
+        return self.Rx
 
     def simDiffusorEffect(self, light_theta, diff_theta, seednr=19680801):
         seed(seednr)#seed for random generator - reproducibility
@@ -60,10 +61,11 @@ class ledObject(object):
             #shift frame of reference: y'is z, x' is y and z' is x
             self.ri[i, 0] = math.sin(self.theta[i])*math.sin(self.phi[i])
             self.ri[i, 1] = math.cos(self.theta[i])
-            self.ri[i, 2] = math.sin(self.theta[i])*math.cos(self.phi[i])
+            self.ri[i, 2] = math.sin(self.theta[i])*math.cos(self.phi[i])+0.66
             self.rri[i,:] = np.dot(self.ri[i,:], self.Rx)
-            self.rri[i,:] = np.dot(self.rri[i,:], self.Rz)
-            self.diff_radi[i] = math.sqrt(math.pow(self.rri[i,0],2)+math.pow(self.rri[i,2],2))
+            self.auxrri[i,:] = self.rri[i,:]
+            #self.diff_radi[i] = math.sqrt(math.pow(self.rri[i,0],2)+math.pow(self.rri[i,2],2))
+            self.diff_radi[i] = math.pow(self.rri[i,0],2)+math.pow(self.rri[i,2],2)
             #boost vector to diffusor
             m = self.dist_to_diff/self.rri[i,1]
             self.rri[i,:] = self.rri[i,:]*m #boosted vector
@@ -106,18 +108,25 @@ class ledObject(object):
         return phcount, self.cap_polar_angle
 
     def plotPhotonVectors(self):
+        #auxiliary function to validate geometry
         fig = plt.figure(2)
         ax = fig.add_subplot(111, projection='3d')
-        ax.quiver(self.zeropos[:,0], self.zeropos[:,1], self.transpos[:,2],
+        ax.quiver(self.zeropos[:,0], self.zeropos[:,1], self.zeropos[:,2],
                   self.ri[:, 0], self.ri[:,1], self.ri[:, 2], length=0.6)
-        ax.quiver(self.zeropos[:,0], self.transpos[:,1], self.transpos[:,2],
+        ax.quiver(self.zeropos[:,0], self.transpos[:,1], self.zeropos[:,2],
                   self.rri[:, 0], self.rri[:,1], self.rri[:, 2], length=0.6, colors=[(1,0,0)])
-        ax.quiver(self.zeropos[:,0], self.transpos[:,1]*2, self.zeropos[:,2],
-                  self.rf[:, 0], self.rf[:,1], self.rf[:, 2], length=0.6, colors=[(0,1,0)])
+        #ax.quiver(self.zeropos[:,0], self.transpos[:,1]*2, self.zeropos[:,2],
+                  #self.rf[:, 0], self.rf[:,1], self.rf[:, 2], length=0.6, colors=[(0,1,0)])
         ax.set_zlim3d(-1, 1.5)
         ax.set_ylim3d(-0.4, 3)
         ax.set_xlim3d(-0.4, 1)
         plt.show()
 
-    def _calcDistanceToPreferentialDir(self, vec):
-        return math.sqrt(math.pow(vec[0],2)+math.pow(vec[1]-1,2)+math.pow(vec[2],2))
+    def _intersectWithPlane(self, y_val, vec):
+        #plane parallel with XoZ with y = y_val
+        v = vec
+        v[2] = v[2]-self.led_z_pos
+        t = self.dist_to_diff/v[1]
+        x = t*v[1]
+        z = t*v[2]+self.dist_to_diff
+        return [x,self.dist_to_diff,z]
