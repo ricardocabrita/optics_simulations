@@ -34,16 +34,18 @@ if __name__ == "__main__":
     plt.ylabel('rel # photons')
 
     fig2 = plt.figure(2)
-    # n, bins, patches = plt.hist(ledHalfInch.diff_radi, 100, density=True, facecolor='g', histtype='step', label='0.5 inch from LED to diffusor')
-    # n2, bins2, patches2 = plt.hist(led1Inch.diff_radi, 100, density=True, facecolor='b', histtype='step', label="1 inch from LED to diffusor")
-    # n2, bins2, patches2 = plt.hist(led1halfInch.diff_radi, 100, density=True, facecolor='y', histtype='step', label="1.5 inch from LED to diffusor")
-    # n2, bins2, patches2 = plt.hist(led2Inch.diff_radi, 100, density=True, facecolor='r', histtype='step', label="2 inch from LED to diffusor")
-    #plt.scatter(led2Inch.auxrri[:,0], led2Inch.rri[:,2], label="2 in LED-diffuser")
-    #plt.scatter(led1Inch.auxrri[:,0], led1Inch.rri[:,2], label="1 in LED-diffuser")
+    n, bins, patches = plt.hist(ledHalfInch.diff_radi, 100, density=True, facecolor='g', histtype='step', label='0.5 inch from LED to diffusor')
+    n2, bins2, patches2 = plt.hist(led1Inch.diff_radi, 100, density=True, facecolor='b', histtype='step', label="1 inch from LED to diffusor")
+    n2, bins2, patches2 = plt.hist(led1halfInch.diff_radi, 100, density=True, facecolor='y', histtype='step', label="1.5 inch from LED to diffusor")
+    n2, bins2, patches2 = plt.hist(led2Inch.diff_radi, 100, density=True, facecolor='r', histtype='step', label="2 inch from LED to diffusor")
+
     plt.legend()
     # plt.xlabel('dist to center of diff (cm)')
     # plt.ylabel('rel # photons')
 
+    fig3 = plt.figure(3)
+    plt.scatter(led2Inch.auxrri[:,0], led2Inch.auxrri[:,2], label="2 in LED-diffuser")
+    plt.scatter(ledHalfInch.auxrri[:,0], ledHalfInch.auxrri[:,2], label="0.5 in LED-diffuser")
 
     plt.show()
 

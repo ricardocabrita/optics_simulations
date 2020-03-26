@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 if __name__ == "__main__":
     sample_size = 1000000
     distance_to_diffusorCenter = [1.27, 2.54, 3.5, 5.08]
-    dist_to_pinh = 1.27
+    dist_to_pinh = 5.08
     pinh_rad = 0.15
     light_theta = 7.5
     diff_theta = 7.5
@@ -45,9 +45,5 @@ if __name__ == "__main__":
     n, bins, patches = plt.hist(led1halfInch.cap_polar_angle, 100, density=True, facecolor='y',  histtype='step', label='1.5in LED-diffuser, 0.5in diffuser-pinhole')
     n2, bins2, patches2 = plt.hist(led2Inch.cap_polar_angle, 100, density=True, facecolor='r',  histtype='step', label='2in LED-diffuser, 0.5in diffuser-pinhole')
     plt.legend()
-    #plt.title("Polar angle distribution at IS cap")
-
 
     plt.show()
-
-    #led2Inch.plotPhotonVectors()

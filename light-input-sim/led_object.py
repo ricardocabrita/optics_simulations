@@ -11,7 +11,7 @@ def calc_pitch(dist, cat):
     print("distance to difusor: {}  | h: {} | pitch {}º- {}rads".format(dist, h, dpitch, pitch))
     return pitch
 
-def calc_yaw(dist):
+def calc_yaw(dist, cat):
     cat = 0.456 #->sen(45) = x/0.645
     h = math.sqrt(math.pow(cat,2)+math.pow(dist,2))
     dyaw = 90 - math.acos(cat/h)*(180/math.pi)
@@ -22,6 +22,7 @@ def calc_yaw(dist):
 class ledObject(object):
     def __init__(self, sample_size, z_pos=0.66):
         self.led_z_pos = z_pos #z position of LED in the matrix
+        self.led_x_pos = -z_pos
         self.sample_size = sample_size
         #auxiliary matrixes for quiver plots starting positions
         self.zeropos = np.zeros((sample_size,3))
@@ -41,11 +42,11 @@ class ledObject(object):
         #LED position angles
         self.dist_to_diff = dist_to_targetcenter
         pitch = calc_pitch(dist_to_targetcenter, self.led_z_pos)
-        #yaw = calc_yaw(dist_to_targetcenter)
+        yaw = calc_yaw(dist_to_targetcenter, self.led_x_pos)
         #rotation matrixes to calc rri
         self.Rx = np.array([[1, 0, 0],[0, math.cos(pitch), -math.sin(pitch)], [0, math.sin(pitch), math.cos(pitch)]])
-        #self.Rz = np.array([[math.cos(yaw), -math.sin(yaw), 0],[math.sin(yaw), math.cos(yaw), 0], [0, 0, 1]])
-        return self.Rx
+        self.Rz = np.array([[math.cos(yaw), -math.sin(yaw), 0],[math.sin(yaw), math.cos(yaw), 0], [0, 0, 1]])
+        return self.Rx, self.Rz
 
     def simDiffusorEffect(self, light_theta, diff_theta, seednr=19680801):
         seed(seednr)#seed for random generator - reproducibility
@@ -59,16 +60,15 @@ class ledObject(object):
             #ri[i, 1] = math.sin(theta[i])*math.sin(phi[i])
             #ri[i, 2] = math.cos(theta[i])
             #shift frame of reference: y'is z, x' is y and z' is x
-            self.ri[i, 0] = math.sin(self.theta[i])*math.sin(self.phi[i])
+            self.ri[i, 0] = math.sin(self.theta[i])*math.sin(self.phi[i])+self.led_x_pos
             self.ri[i, 1] = math.cos(self.theta[i])
-            self.ri[i, 2] = math.sin(self.theta[i])*math.cos(self.phi[i])+0.66
+            self.ri[i, 2] = math.sin(self.theta[i])*math.cos(self.phi[i])+self.led_z_pos
             self.rri[i,:] = np.dot(self.ri[i,:], self.Rx)
+            self.rri[i,:] = np.dot(self.rri[i,:], self.Rz)
             self.auxrri[i,:] = self.rri[i,:]
-            #self.diff_radi[i] = math.sqrt(math.pow(self.rri[i,0],2)+math.pow(self.rri[i,2],2))
-            self.diff_radi[i] = math.pow(self.rri[i,0],2)+math.pow(self.rri[i,2],2)
             #boost vector to diffusor
-            m = self.dist_to_diff/self.rri[i,1]
-            self.rri[i,:] = self.rri[i,:]*m #boosted vector
+            self.rri[i,:] = self._intersectWithPlane(self.dist_to_diff, self.rri[i,:])
+            self.diff_radi[i] = math.sqrt(math.pow(self.rri[i,0],2)+math.pow(self.rri[i,2],2))
             diff_polar = gauss(0, self.diff_theta) #difusor polar angle
             #polar angle in ref to y, is a rotation around the z axis
             diffRz = np.array([[math.cos(diff_polar), -math.sin(diff_polar), 0],
@@ -126,11 +126,8 @@ class ledObject(object):
         #plane parallel with XoZ with y = y_val
         v = vec
         v[2] = v[2]-self.led_z_pos
-        print("v:{}".format(v))
+        v[0] = v[0]-self.led_x_pos
         t = y_val/v[1]
-        print("t:{}".format(t))
-        x = t*v[0]
-        print("x:{}".format(x))
+        x = (t*v[0])+self.led_x_pos
         z = (t*v[2])+self.led_z_pos
-        print("{}*{} = z:{}".format(t, v[2],z))
         return [x,y_val,z]
