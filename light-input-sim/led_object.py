@@ -126,7 +126,11 @@ class ledObject(object):
         #plane parallel with XoZ with y = y_val
         v = vec
         v[2] = v[2]-self.led_z_pos
-        t = self.dist_to_diff/v[1]
-        x = t*v[1]
-        z = t*v[2]+self.dist_to_diff
-        return [x,self.dist_to_diff,z]
+        print("v:{}".format(v))
+        t = y_val/v[1]
+        print("t:{}".format(t))
+        x = t*v[0]
+        print("x:{}".format(x))
+        z = (t*v[2])+self.led_z_pos
+        print("{}*{} = z:{}".format(t, v[2],z))
+        return [x,y_val,z]
