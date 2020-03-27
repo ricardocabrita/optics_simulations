@@ -40,10 +40,12 @@ if __name__ == "__main__":
     # plt.title("Spot - X/Y distribution at 1.5'' cap")
 
     fig2 = plt.figure(2)
-    n, bins, patches = plt.hist(ledHalfInch.cap_polar_angle, 100, density=True, facecolor='g',  histtype='step', label='0.5in LED-diffuser, 0.5in diffuser-pinhole')
-    n, bins, patches = plt.hist(led1Inch.cap_polar_angle, 100, density=True, facecolor='b',  histtype='step', label='1in LED-diffuser, 0.5in diffuser-pinhole')
-    n, bins, patches = plt.hist(led1halfInch.cap_polar_angle, 100, density=True, facecolor='y',  histtype='step', label='1.5in LED-diffuser, 0.5in diffuser-pinhole')
-    n2, bins2, patches2 = plt.hist(led2Inch.cap_polar_angle, 100, density=True, facecolor='r',  histtype='step', label='2in LED-diffuser, 0.5in diffuser-pinhole')
+    n, bins, patches = plt.hist(ledHalfInch.cap_polar_angle, 100, density=True, facecolor='g',  histtype='step', label='0.5in LED-diffuser, 2in diffuser-pinhole')
+    n, bins, patches = plt.hist(led1Inch.cap_polar_angle, 100, density=True, facecolor='b',  histtype='step', label='1in LED-diffuser, 2in diffuser-pinhole')
+    n, bins, patches = plt.hist(led1halfInch.cap_polar_angle, 100, density=True, facecolor='y',  histtype='step', label='1.5in LED-diffuser, 2in diffuser-pinhole')
+    n2, bins2, patches2 = plt.hist(led2Inch.cap_polar_angle, 100, density=True, facecolor='r',  histtype='step', label='2in LED-diffuser, 2in diffuser-pinhole')
+    plt.xlabel('degrees')
+    plt.ylabel('rel # photons, n={}'.format(sample_size))
     plt.legend()
 
     plt.show()
