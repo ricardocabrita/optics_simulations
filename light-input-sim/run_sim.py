@@ -2,7 +2,7 @@ from led_object import ledObject
 import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
-    sample_size = 100000
+    sample_size = 1000000
     distance_to_diffusorCenter = [1.27, 2.54, 3.5, 5.08]
     light_theta = 7.5
     diff_theta = 7.5
@@ -29,23 +29,19 @@ if __name__ == "__main__":
     n2, bins2, patches2 = plt.hist(led1halfInch.diff_polar_angle, 100, density=True, facecolor='y', histtype='step', label="1.5 inch from LED to diffusor")
     n2, bins2, patches2 = plt.hist(led2Inch.diff_polar_angle, 100, density=True, facecolor='r', histtype='step', label="2 inch from LED to diffusor")
     plt.legend()
-    #plt.title("Final polar angle distribution")
     plt.xlabel('degrees')
-    plt.ylabel('rel # photons')
+    plt.ylabel('rel # photons, n={}'.format(sample_size))
 
     fig2 = plt.figure(2)
     n, bins, patches = plt.hist(ledHalfInch.diff_radi, 100, density=True, facecolor='g', histtype='step', label='0.5 inch from LED to diffusor')
     n2, bins2, patches2 = plt.hist(led1Inch.diff_radi, 100, density=True, facecolor='b', histtype='step', label="1 inch from LED to diffusor")
     n2, bins2, patches2 = plt.hist(led1halfInch.diff_radi, 100, density=True, facecolor='y', histtype='step', label="1.5 inch from LED to diffusor")
     n2, bins2, patches2 = plt.hist(led2Inch.diff_radi, 100, density=True, facecolor='r', histtype='step', label="2 inch from LED to diffusor")
-
+    plt.xlabel('dist to center of difuser (cm)')
+    plt.ylabel('rel # photons, n={}'.format(sample_size))
+    plt.axvline(x=1.27, linewidth=2, color='k', label="Diffuser radius")
     plt.legend()
-    # plt.xlabel('dist to center of diff (cm)')
-    # plt.ylabel('rel # photons')
 
-    fig3 = plt.figure(3)
-    plt.scatter(led2Inch.auxrri[:,0], led2Inch.auxrri[:,2], label="2 in LED-diffuser")
-    plt.scatter(ledHalfInch.auxrri[:,0], ledHalfInch.auxrri[:,2], label="0.5 in LED-diffuser")
 
     plt.show()
 
