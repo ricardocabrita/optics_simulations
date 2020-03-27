@@ -67,7 +67,7 @@ class ledObject(object):
             self.rri[i,:] = np.dot(self.rri[i,:], self.Rz)
             self.auxrri[i,:] = self.rri[i,:]
             #boost vector to diffusor
-            self.rri[i,:] = self._intersectWithPlane(self.dist_to_diff, self.rri[i,:])
+            self.rri[i,:] = self._intersectWithPlane(self.dist_to_diff, self.rri[i,:], self.led_x_pos, self.led_z_pos)
             self.diff_radi[i] = math.sqrt(math.pow(self.rri[i,0],2)+math.pow(self.rri[i,2],2))
             diff_polar = gauss(0, self.diff_theta) #difusor polar angle
             #polar angle in ref to y, is a rotation around the z axis
@@ -92,14 +92,13 @@ class ledObject(object):
         self.cap_photons = []
         self.cap_polar_angle = []
         is_diam = 8.382
+        pinh_y = self.dist_to_diff+dist_to_pinh
         for i in range(self.sample_size):
-            m = dist_to_pinh/self.rf[i,1]
-            self.rpinh[i,:] = self.rf[i,:]*m #boosted to pinhole
+            self.rpinh[i,:] = self._intersectWithPlane(pinh_y, self.rf[i,:])
             test = math.pow(self.rpinh[i,0],2)+math.pow(self.rpinh[i,2],2)
             if(test < math.pow(pinh_rad,2)): #if inside pinh radi, boost to cap and calc polar angle distro
-                mcap = is_diam/self.rpinh[i,1]
                 phcount += 1
-                self.cap_photons.append(self.rpinh[i,:]*mcap) #photon points at cap
+                self.cap_photons.append(self._intersectWithPlane(pinh_y+is_diam, self.rpinh[i,:])) #photon points at cap
                 self.cap_ph_xpos.append(self.cap_photons[-1][0])
                 self.cap_ph_zpos.append(self.cap_photons[-1][2])
                 r = math.sqrt(math.pow(self.rf[i,0],2)+math.pow(self.cap_photons[-1][1],2)+math.pow(self.cap_photons[-1][2],2))
@@ -122,12 +121,12 @@ class ledObject(object):
         ax.set_xlim3d(-0.4, 1)
         plt.show()
 
-    def _intersectWithPlane(self, y_val, vec):
+    def _intersectWithPlane(self, y_val, vec, xi=0, zi=0):
         #plane parallel with XoZ with y = y_val
         v = vec
-        v[2] = v[2]-self.led_z_pos
-        v[0] = v[0]-self.led_x_pos
+        v[2] = v[2]-zi
+        v[0] = v[0]-xi
         t = y_val/v[1]
-        x = (t*v[0])+self.led_x_pos
-        z = (t*v[2])+self.led_z_pos
+        x = (t*v[0])+xi
+        z = (t*v[2])+zi
         return [x,y_val,z]

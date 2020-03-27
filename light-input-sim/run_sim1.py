@@ -34,9 +34,9 @@ if __name__ == "__main__":
     phcount, angles = led2Inch.simPinholeEffect(dist_to_pinh, pinh_rad)
     print("2inch from diffusor - Got {}/{} through pinhole!".format(phcount, sample_size))
 
-    # fig1 = plt.figure(1)
-    # plt.scatter(led1Inch.cap_ph_xpos, led1Inch.cap_ph_zpos)
-    # #plt.scatter(led2Inch.cap_ph_xpos, led2Inch.cap_ph_zpos, c='red')
+    fig1 = plt.figure(1)
+    plt.scatter(led1Inch.cap_ph_xpos, led1Inch.cap_ph_zpos)
+    plt.scatter(led2Inch.cap_ph_xpos, led2Inch.cap_ph_zpos, c='red')
     # plt.title("Spot - X/Y distribution at 1.5'' cap")
 
     fig2 = plt.figure(2)
