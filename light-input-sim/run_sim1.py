@@ -10,26 +10,27 @@ if __name__ == "__main__":
     light_theta = 7.5
     diff_theta = 7.5
     nbins = 25
-
-    ledHalfInch = ledObject(sample_size)
+    x_pos = 0
+    z_pos = 0.66
+    ledHalfInch = ledObject(sample_size,z_pos, x_pos)
     ledHalfInch.calcLEDRotationMatrixes(distance_to_diffusorCenter[0])
     ledHalfInch.simDiffusorEffect(light_theta, diff_theta)
     phcount, angles = ledHalfInch.simPinholeEffect(dist_to_pinh, pinh_rad)
     print("0.5 inch from diffusor - Got {}/{} through pinhole!".format(phcount, sample_size))
 
-    led1Inch = ledObject(sample_size)
+    led1Inch = ledObject(sample_size,z_pos, x_pos)
     led1Inch.calcLEDRotationMatrixes(distance_to_diffusorCenter[1])
     led1Inch.simDiffusorEffect(light_theta, diff_theta)
     phcount, angles = led1Inch.simPinholeEffect(dist_to_pinh, pinh_rad)
     print("1 inch from diffusor - Got {}/{} through pinhole!".format(phcount, sample_size))
 
-    led1halfInch = ledObject(sample_size)
+    led1halfInch = ledObject(sample_size,z_pos, x_pos)
     led1halfInch.calcLEDRotationMatrixes(distance_to_diffusorCenter[2])
     led1halfInch.simDiffusorEffect(light_theta, diff_theta)
     phcount, angles = led1halfInch.simPinholeEffect(dist_to_pinh, pinh_rad)
     print("1.5 inch from diffusor - Got {}/{} through pinhole!".format(phcount, sample_size))
 
-    led2Inch = ledObject(sample_size)
+    led2Inch = ledObject(sample_size,z_pos, x_pos)
     led2Inch.calcLEDRotationMatrixes(distance_to_diffusorCenter[3])
     led2Inch.simDiffusorEffect(light_theta, diff_theta)
     phcount, angles = led2Inch.simPinholeEffect(dist_to_pinh, pinh_rad)
@@ -45,10 +46,10 @@ if __name__ == "__main__":
     # plt.title("Spot - X/Y distribution at 1.5'' cap")
 
     fig2 = plt.figure(2)
-    n, bins, patches = plt.hist(ledHalfInch.cap_polar_angle, nbins, density=True, facecolor='r',  histtype='step', label='0.5in a, 1.5in c')
-    n, bins, patches = plt.hist(led1Inch.cap_polar_angle, nbins, density=True, facecolor='g',  histtype='step', label='1in a, 1.5in c')
-    n, bins, patches = plt.hist(led1halfInch.cap_polar_angle, nbins, density=True, facecolor='b',  histtype='step', label='1.5in a, 1.5in c')
-    n2, bins2, patches2 = plt.hist(led2Inch.cap_polar_angle, nbins, density=True, facecolor='k',  histtype='step', label='2in a, 1.5in c')
+    n, bins, patches = plt.hist(ledHalfInch.cap_polar_angle, nbins, density=True, color='r',  histtype='step', label="a=0.5'', c =1.5''")
+    n, bins, patches = plt.hist(led1Inch.cap_polar_angle, nbins, density=True, color='g',  histtype='step', label="a=1.0'', c =1.5''")
+    n, bins, patches = plt.hist(led1halfInch.cap_polar_angle, nbins, density=True, color='b',  histtype='step', label="a=1.5'', c =1.5''")
+    n2, bins2, patches2 = plt.hist(led2Inch.cap_polar_angle, nbins, density=True, color='y',  histtype='step', label="a=2.0'', c =1.5''")
     plt.xlabel('degrees')
     plt.ylabel('rel # photons, n={}'.format(sample_size))
     plt.legend()

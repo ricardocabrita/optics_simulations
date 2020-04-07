@@ -107,15 +107,15 @@ class ledObject(object):
         is_diam = 8.382
         pinh_y = self.dist_to_diff+dist_to_pinh
         for i in range(self.sample_size):
-            self.rpinh[i,:] = self._intersectWithPlane(pinh_y, self.rf[i,:])
+            self.rpinh[i,:] = self._intersectWithPlane(pinh_y, self.rf[i,:],self.led_x_pos, self.led_z_pos)
             test = math.pow(self.rpinh[i,0],2)+math.pow(self.rpinh[i,2],2)
             if(test < math.pow(pinh_rad,2)): #if inside pinh radi, boost to cap and calc polar angle distro
                 phcount += 1
-                self.cap_photons.append(self._intersectWithPlane(pinh_y+is_diam, self.rpinh[i,:])) #photon points at cap
+                self.cap_photons.append(self._intersectWithPlane(pinh_y+is_diam, self.rpinh[i,:],self.led_x_pos, self.led_z_pos)) #photon points at cap
                 self.cap_ph_xpos.append(self.cap_photons[-1][0])
                 self.cap_ph_zpos.append(self.cap_photons[-1][2])
                 r = math.sqrt(math.pow(self.rf[i,0],2)+math.pow(self.cap_photons[-1][1],2)+math.pow(self.cap_photons[-1][2],2))
-                self.cap_polar_angle.append(90 - (math.acos(self.cap_photons[-1][2]/r)*(180/math.pi)))
+                self.cap_polar_angle.append(math.acos(self.cap_photons[-1][1]/r)*(180/math.pi))
 
         return phcount, self.cap_polar_angle
 
