@@ -10,8 +10,8 @@ if __name__ == "__main__":
     light_theta = 7.5
     diff_theta = 7.5
     nbins = 25
-    x_pos = 0
-    z_pos = 0.66
+    x_pos = 0.66
+    z_pos = 0
     ledHalfInch = ledObject(sample_size,z_pos, x_pos)
     ledHalfInch.calcLEDRotationMatrixes(distance_to_diffusorCenter[0])
     ledHalfInch.simDiffusorEffect(light_theta, diff_theta)
@@ -41,15 +41,17 @@ if __name__ == "__main__":
             'size'   : 12}
     matplotlib.rc('font', **font)
     fig1 = plt.figure(1)
-    plt.scatter(led1Inch.cap_ph_xpos, led1Inch.cap_ph_zpos)
-    plt.scatter(led2Inch.cap_ph_xpos, led2Inch.cap_ph_zpos, c='red')
-    # plt.title("Spot - X/Y distribution at 1.5'' cap")
+    plt.scatter(led1Inch.cap_ph_xpos, led1Inch.cap_ph_zpos, c='g',label="a=1.0'',c=1.5''")
+    plt.scatter(led2Inch.cap_ph_xpos, led2Inch.cap_ph_zpos, c='y', label="a=2.0'',c=1.5''")
+    plt.xlabel('cm')
+    plt.ylabel('cm')
+    plt.legend()
 
     fig2 = plt.figure(2)
-    n, bins, patches = plt.hist(ledHalfInch.cap_polar_angle, nbins, density=True, color='r',  histtype='step', label="a=0.5'', c =1.5''")
-    n, bins, patches = plt.hist(led1Inch.cap_polar_angle, nbins, density=True, color='g',  histtype='step', label="a=1.0'', c =1.5''")
-    n, bins, patches = plt.hist(led1halfInch.cap_polar_angle, nbins, density=True, color='b',  histtype='step', label="a=1.5'', c =1.5''")
-    n2, bins2, patches2 = plt.hist(led2Inch.cap_polar_angle, nbins, density=True, color='y',  histtype='step', label="a=2.0'', c =1.5''")
+    #n, bins, patches = plt.hist(ledHalfInch.cap_polar_angle, nbins, density=True, color='r',  histtype='step', label="a=0.5'',c=1.5''")
+    n, bins, patches = plt.hist(led1Inch.cap_polar_angle, nbins, density=True, color='g',  histtype='step', label="a=1.0'',c=1.5''")
+    n, bins, patches = plt.hist(led1halfInch.cap_polar_angle, nbins, density=True, color='b',  histtype='step', label="a=1.5'',c=1.5''")
+    n2, bins2, patches2 = plt.hist(led2Inch.cap_polar_angle, nbins, density=True, color='y',  histtype='step', label="a=2.0'',c=1.5''")
     plt.xlabel('degrees')
     plt.ylabel('rel # photons, n={}'.format(sample_size))
     plt.legend()
