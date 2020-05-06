@@ -36,7 +36,8 @@ class ledObject(object):
         self.diff_radi = np.zeros(sample_size)
         self.rf = np.zeros((sample_size,3)) #matrix to hold final photon vectors after diffusor rotation
         self.rpinh = np.zeros((sample_size,3)) #matrix to hold photon vectrs at pinhole
-        self.diff_polar_angle = np.zeros(sample_size) #matrix to hold values of photon vector distance from pinhole direction
+        self.diff_polar_angle = np.zeros(sample_size) #matrix to hold values of polar angle after diffuser effect
+        self.prev_polar_angle = np.zeros(sample_size) #matrix to hold values of polar angle previous to diffuser effect
 
     def calcLEDRotationMatrixes(self, dist_to_targetcenter):
         #LED position angles
@@ -80,7 +81,9 @@ class ledObject(object):
             #self.auxrri[i,:] = self.rri[i,:]
             #boost vector to diffusor
             self.rri[i,:] = self._intersectWithPlane(self.dist_to_diff, self.rri[i,:], self.led_x_pos, self.led_z_pos)
-            self.diff_radi[i] = math.sqrt(math.pow(self.rri[i,0],2)+math.pow(self.rri[i,2],2))
+            r = math.sqrt(math.pow(self.rri[i,0],2)+math.pow(self.rri[i,1],2)+math.pow(self.rri[i,2],2))
+            self.prev_polar_angle[i] = (math.acos(self.rri[i,1]/r)*(180/math.pi))
+            #self.diff_radi[i] = math.sqrt(math.pow(self.rri[i,0],2)+math.pow(self.rri[i,2],2))
             diff_polar = gauss(0, self.diff_theta) #difusor polar angle
             #polar angle in ref to y, is a rotation around the z axis
             diffRz = np.array([[math.cos(diff_polar), -math.sin(diff_polar), 0],
@@ -119,16 +122,15 @@ class ledObject(object):
 
         return phcount, self.cap_polar_angle
 
-    def plotPhotonVectors(self):
+    def plotPhotonVectors(self. f=1):
         #auxiliary function to validate geometry
-        fig = plt.figure(2)
+        fig = plt.figure(f)
         ax = fig.add_subplot(111, projection='3d')
-        ax.quiver(self.zeropos[:,0], self.zeropos[:,1], self.zeropos[:,2],
-                  self.ri[:, 0], self.ri[:,1], self.ri[:, 2], length=0.6)
-        ax.quiver(self.zeropos[:,0], self.transpos[:,1], self.zeropos[:,2],
-                  self.rri[:, 0], self.rri[:,1], self.rri[:, 2], length=0.6, colors=[(1,0,0)])
-        #ax.quiver(self.zeropos[:,0], self.transpos[:,1]*2, self.zeropos[:,2],
-                  #self.rf[:, 0], self.rf[:,1], self.rf[:, 2], length=0.6, colors=[(0,1,0)])
+        #ax.quiver(self.zeropos[:,0], self.zeropos[:,1], self.zeropos[:,2],
+        #          self.ri[:, 0], self.ri[:,1], self.ri[:, 2], length=0.6)
+        #ax.quiver(self.zeropos[:,0], self.transpos[:,1], self.zeropos[:,2],
+        #          self.rri[:, 0], self.rri[:,1], self.rri[:, 2], length=0.6, colors=[(1,0,0)])
+        ax.quiver(self.zeropos[:,0], self.zeropos[:,1], self.transpos[:,2], self.ri[:, 0], self.ri[:,1], self.ri[:, 2])
         ax.set_zlim3d(-1, 1.5)
         ax.set_ylim3d(-0.4, 3)
         ax.set_xlim3d(-0.4, 1)
