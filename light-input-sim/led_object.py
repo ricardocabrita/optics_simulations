@@ -34,6 +34,7 @@ class ledObject(object):
         self.rri = np.zeros((sample_size,3)) #matrix to hold rotated (led position) photon vectors
         self.auxrri = np.zeros((sample_size,3)) #matrix to hold rotated (led position) photon vectors
         self.diff_radi = np.zeros(sample_size)
+        self.diff_points = np.zeros((sample_size,3)) #matriz to hold photon points at diffuser
         self.rf = np.zeros((sample_size,3)) #matrix to hold final photon vectors after diffusor rotation
         self.rpinh = np.zeros((sample_size,3)) #matrix to hold photon vectrs at pinhole
         self.diff_polar_angle = np.zeros(sample_size) #matrix to hold values of polar angle after diffuser effect
@@ -63,13 +64,23 @@ class ledObject(object):
         for i in range(0, self.sample_size):
             self.theta[i] = gauss(0, self.light_theta) #LED polar angle (from viewangle)
             self.phi[i] = randrange(0, 360)*math.pi/180 #LED azimuthal angle
-            #ri[i, 0] = math.sin(theta[i])*math.cos(phi[i])
-            #ri[i, 1] = math.sin(theta[i])*math.sin(phi[i])
-            #ri[i, 2] = math.cos(theta[i])
+
             #shift frame of reference: y'is z, x' is y and z' is x
-            self.ri[i, 0] = math.sin(self.theta[i])*math.sin(self.phi[i])+self.led_x_pos
-            self.ri[i, 1] = math.cos(self.theta[i])
-            self.ri[i, 2] = math.sin(self.theta[i])*math.cos(self.phi[i])+self.led_z_pos
+            # self.ri[i, 0] = math.sin(self.theta[i])*math.sin(self.phi[i])#+self.led_x_pos
+            # self.ri[i, 1] = math.cos(self.theta[i])
+            # self.ri[i, 2] = math.sin(self.theta[i])*math.cos(self.phi[i])#+self.led_z_pos
+            self.ri[i,1] = 1 #y direction
+            initialRz = np.array([[math.cos(self.theta[i]), -math.sin(self.theta[i]), 0],
+                               [math.sin(self.theta[i]), math.cos(self.theta[i]), 0],
+                               [0, 0, 1]])
+            initialRy = np.array([[math.cos(self.phi[i]), 0, math.sin(self.phi[i])],
+                               [0, 1, 0],
+                               [-math.sin(self.phi[i]), 0, math.cos(self.phi[i])]])
+            self.ri[i,:] = np.dot(self.ri[i,:], initialRz)
+            self.ri[i,:] = np.dot(self.ri[i,:], initialRy)
+            #self.ri[i,0] += self.led_x_pos
+            #self.ri[i,2] += self.led_z_pos
+
             if self.led_z_pos != 0 and self.led_x_pos ==0:
                 self.rri[i,:] = np.dot(self.ri[i,:], self.Rx)
             elif self.led_z_pos == 0 and self.led_x_pos != 0:
@@ -80,7 +91,7 @@ class ledObject(object):
 
             #self.auxrri[i,:] = self.rri[i,:]
             #boost vector to diffusor
-            self.rri[i,:] = self._intersectWithPlane(self.dist_to_diff, self.rri[i,:], self.led_x_pos, self.led_z_pos)
+            #self.diff_points[i,:] = self._intersectWithPlane(self.dist_to_diff, self.rri[i,:], self.led_x_pos, self.led_z_pos)
             r = math.sqrt(math.pow(self.rri[i,0],2)+math.pow(self.rri[i,1],2)+math.pow(self.rri[i,2],2))
             self.prev_polar_angle[i] = (math.acos(self.rri[i,1]/r)*(180/math.pi))
             #self.diff_radi[i] = math.sqrt(math.pow(self.rri[i,0],2)+math.pow(self.rri[i,2],2))
@@ -122,7 +133,7 @@ class ledObject(object):
 
         return phcount, self.cap_polar_angle
 
-    def plotPhotonVectors(self. f=1):
+    def plotPhotonVectors(self, f=1):
         #auxiliary function to validate geometry
         fig = plt.figure(f)
         ax = fig.add_subplot(111, projection='3d')
@@ -130,7 +141,7 @@ class ledObject(object):
         #          self.ri[:, 0], self.ri[:,1], self.ri[:, 2], length=0.6)
         #ax.quiver(self.zeropos[:,0], self.transpos[:,1], self.zeropos[:,2],
         #          self.rri[:, 0], self.rri[:,1], self.rri[:, 2], length=0.6, colors=[(1,0,0)])
-        ax.quiver(self.zeropos[:,0], self.zeropos[:,1], self.transpos[:,2], self.ri[:, 0], self.ri[:,1], self.ri[:, 2])
+        ax.quiver(self.transpos[:,0]*self.led_x_pos, self.zeropos[:,1], self.transpos[:,2]*self.led_z_pos, self.ri[:, 0], self.ri[:,1], self.ri[:, 2])
         ax.set_zlim3d(-1, 1.5)
         ax.set_ylim3d(-0.4, 3)
         ax.set_xlim3d(-0.4, 1)
@@ -139,9 +150,9 @@ class ledObject(object):
     def _intersectWithPlane(self, y_val, vec, xi=0, zi=0):
         #plane parallel with XoZ with y = y_val
         v = vec
-        v[2] = v[2]-zi
-        v[0] = v[0]-xi
+        #v[2] = v[2]-zi
+        #v[0] = v[0]-xi
         t = y_val/v[1]
-        x = (t*v[0])+xi
-        z = (t*v[2])+zi
+        x = (t*(v[0]-xi))+xi
+        z = (t*(v[2]-zi))+zi
         return [x,y_val,z]
