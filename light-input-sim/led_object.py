@@ -91,7 +91,7 @@ class ledObject(object):
 
             #self.auxrri[i,:] = self.rri[i,:]
             #boost vector to diffusor
-            #self.diff_points[i,:] = self._intersectWithPlane(self.dist_to_diff, self.rri[i,:], self.led_x_pos, self.led_z_pos)
+            self.diff_points[i,:] = self._intersectWithPlane(self.dist_to_diff, self.rri[i,:], self.led_x_pos, self.led_z_pos)
             r = math.sqrt(math.pow(self.rri[i,0],2)+math.pow(self.rri[i,1],2)+math.pow(self.rri[i,2],2))
             self.prev_polar_angle[i] = (math.acos(self.rri[i,1]/r)*(180/math.pi))
             #self.diff_radi[i] = math.sqrt(math.pow(self.rri[i,0],2)+math.pow(self.rri[i,2],2))
@@ -147,12 +147,10 @@ class ledObject(object):
         ax.set_xlim3d(-0.4, 1)
         plt.show()
 
-    def _intersectWithPlane(self, y_val, vec, xi=0, zi=0):
+    def _intersectWithPlane(self, y_val, d, xi=0, zi=0):
         #plane parallel with XoZ with y = y_val
-        v = vec
-        #v[2] = v[2]-zi
-        #v[0] = v[0]-xi
-        t = y_val/v[1]
-        x = (t*(v[0]-xi))+xi
-        z = (t*(v[2]-zi))+zi
+        #yi = 0 always
+        t = y_val/d[1]
+        x = t*d[0] + xi
+        z = t*d[2] + zi
         return [x,y_val,z]

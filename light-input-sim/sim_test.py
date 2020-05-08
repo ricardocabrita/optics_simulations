@@ -18,7 +18,7 @@ if __name__ == "__main__":
     led1Inch = ledObject(sample_size, z_pos, x_pos)
     led1Inch.calcLEDRotationMatrixes(distance_to_diffusorCenter[1])
     led1Inch.simDiffusorEffect(light_theta, diff_theta)
-    #
+    
     led1halfInch = ledObject(sample_size, z_pos, x_pos)
     led1halfInch.calcLEDRotationMatrixes(distance_to_diffusorCenter[2])
     led1halfInch.simDiffusorEffect(light_theta, diff_theta)
