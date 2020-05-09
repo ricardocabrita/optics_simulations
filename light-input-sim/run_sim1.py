@@ -10,8 +10,8 @@ if __name__ == "__main__":
     light_theta = 7.5
     diff_theta = 7.5
     nbins = 25
-    x_pos = 0.66
-    z_pos = 0
+    x_pos = 0
+    z_pos = 0.66
     ledHalfInch = ledObject(sample_size,z_pos, x_pos)
     ledHalfInch.calcLEDRotationMatrixes(distance_to_diffusorCenter[0])
     ledHalfInch.simDiffusorEffect(light_theta, diff_theta)

@@ -34,9 +34,9 @@ class ledObject(object):
         self.rri = np.zeros((sample_size,3)) #matrix to hold rotated (led position) photon vectors
         self.auxrri = np.zeros((sample_size,3)) #matrix to hold rotated (led position) photon vectors
         self.diff_radi = np.zeros(sample_size)
-        self.diff_points = np.zeros((sample_size,3)) #matriz to hold photon points at diffuser
+        self.diff_points = np.zeros((sample_size,3)) #matriz to hold photon points at diffuser plane
+        self.pinh_points = np.zeros((sample_size,3)) #matriz to hold photon points at the pinhole plane
         self.rf = np.zeros((sample_size,3)) #matrix to hold final photon vectors after diffusor rotation
-        self.rpinh = np.zeros((sample_size,3)) #matrix to hold photon vectrs at pinhole
         self.diff_polar_angle = np.zeros(sample_size) #matrix to hold values of polar angle after diffuser effect
         self.prev_polar_angle = np.zeros(sample_size) #matrix to hold values of polar angle previous to diffuser effect
 
@@ -116,20 +116,20 @@ class ledObject(object):
         phcount = 0
         self.cap_ph_xpos = []
         self.cap_ph_zpos = []
-        self.cap_photons = []
+        self.cap_points= []
         self.cap_polar_angle = []
         is_diam = 8.382
         pinh_y = self.dist_to_diff+dist_to_pinh
         for i in range(self.sample_size):
-            self.rpinh[i,:] = self._intersectWithPlane(pinh_y, self.rf[i,:],self.led_x_pos, self.led_z_pos)
-            test = math.pow(self.rpinh[i,0],2)+math.pow(self.rpinh[i,2],2)
-            if(test < math.pow(pinh_rad,2)): #if inside pinh radi, boost to cap and calc polar angle distro
+            self.pinh_points[i,:] = self._intersectWithPlane(pinh_y, self.rf[i,:],self.led_x_pos, self.led_z_pos)
+            test = math.pow(self.pinh_points[i,0],2)+math.pow(self.pinh_points[i,2],2)
+            if(test < math.pow(pinh_rad,2)): #if inside pinh radi, calc points at cap and store polar angle
                 phcount += 1
-                self.cap_photons.append(self._intersectWithPlane(pinh_y+is_diam, self.rpinh[i,:],self.led_x_pos, self.led_z_pos)) #photon points at cap
-                self.cap_ph_xpos.append(self.cap_photons[-1][0])
-                self.cap_ph_zpos.append(self.cap_photons[-1][2])
-                r = math.sqrt(math.pow(self.rf[i,0],2)+math.pow(self.cap_photons[-1][1],2)+math.pow(self.cap_photons[-1][2],2))
-                self.cap_polar_angle.append(math.acos(self.cap_photons[-1][1]/r)*(180/math.pi))
+                self.cap_points.append(self._intersectWithPlane(pinh_y+is_diam, self.rf[i,:],self.led_x_pos, self.led_z_pos)) #photon points at cap
+                self.cap_ph_xpos.append(self.cap_points[-1][0])
+                self.cap_ph_zpos.append(self.cap_points[-1][2])
+                #r = math.sqrt(math.pow(self.rf[i,0],2)+math.pow(self.cap_photons[-1][1],2)+math.pow(self.cap_photons[-1][2],2))
+                self.cap_polar_angle.append(self.diff_polar_angle[i])
 
         return phcount, self.cap_polar_angle
 
