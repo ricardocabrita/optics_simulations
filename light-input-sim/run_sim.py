@@ -7,7 +7,7 @@ if __name__ == "__main__":
     distance_to_diffusorCenter = [1.27, 2.54, 3.5, 5.08]
     light_theta = 7.5
     diff_theta = 7.5
-    nbins = 50
+    nbins = 100
     z_pos = 0
     x_pos = 0.66
 
@@ -69,7 +69,6 @@ if __name__ == "__main__":
     plt.ylabel('rel # photons, n={}'.format(sample_size))
     plt.legend()
 
-    plt.legend()
     plt.show()
 
     #led2Inch.plotPhotonVectors()

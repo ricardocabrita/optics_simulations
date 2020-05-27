@@ -12,7 +12,7 @@ def calc_pitch(dist, cat):
     return pitch
 
 def calc_yaw(dist, cat):
-    cat = 0.456 #->sen(45) = x/0.645
+    #cat = 0.456 #->sen(45) = x/0.645
     h = math.sqrt(math.pow(cat,2)+math.pow(dist,2))
     dyaw = 90 - math.acos(cat/h)*(180/math.pi)
     yaw = (math.pi/2) - math.acos(cat/h)
@@ -52,7 +52,7 @@ class ledObject(object):
 
         if self.led_x_pos != 0:
             yaw = calc_yaw(dist_to_targetcenter, self.led_x_pos)
-            self.Rz = np.array([[math.cos(yaw), -math.sin(yaw), 0],[math.sin(yaw), math.cos(yaw), 0], [0, 0, 1]])
+            self.Rz = np.array([[math.cos(-yaw), -math.sin(-yaw), 0],[math.sin(-yaw), math.cos(-yaw), 0], [0, 0, 1]])
 
         return self.Rx, self.Rz
 
