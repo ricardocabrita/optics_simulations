@@ -1,4 +1,4 @@
-from random import seed, gauss, randrange
+from random import seed, gauss, randrange, weibullvariate
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
@@ -20,7 +20,7 @@ def calc_yaw(dist, cat):
     return yaw
 
 class ledObject(object):
-    def __init__(self, sample_size, z_pos=0.66, x_pos=0):
+    def __init__(self, sample_size, z_pos=0.66, x_pos=0, distribu_flag=0):
         self.led_z_pos = z_pos #z position of LED in the matrix
         self.led_x_pos = x_pos
         self.sample_size = sample_size
@@ -62,7 +62,13 @@ class ledObject(object):
         self.diff_theta = diff_theta*math.pi/180 #diffusor view angle
 
         for i in range(0, self.sample_size):
-            self.theta[i] = gauss(0, self.light_theta) #LED polar angle (from viewangle)
+            if distribu_flag:
+                if i > sample_size/2:
+                    self.theta[i] = -self.theta[i-sample_size/2]
+                else:
+                    self.theta[i] = weibullvariate(20, 1.5)
+            else:
+                self.theta[i] = gauss(0, self.light_theta) #LED polar angle (from viewangle)
             self.phi[i] = randrange(0, 360)*math.pi/180 #LED azimuthal angle
 
             #shift frame of reference: y'is z, x' is y and z' is x
@@ -85,9 +91,10 @@ class ledObject(object):
                 self.rri[i,:] = np.dot(self.ri[i,:], self.Rx)
             elif self.led_z_pos == 0 and self.led_x_pos != 0:
                 self.rri[i,:] = np.dot(self.ri[i,:], self.Rz)
-            else:
+            elif self.led_z_pos != 0 and self.led_x_pos != 0:
                 self.rri[i,:] = np.dot(self.ri[i,:], self.Rx)
                 self.rri[i,:] = np.dot(self.rri[i,:], self.Rz)
+            #if both zero, do nothing
 
             #self.auxrri[i,:] = self.rri[i,:]
             #boost vector to diffusor
