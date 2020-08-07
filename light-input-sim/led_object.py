@@ -20,7 +20,7 @@ def calc_yaw(dist, cat):
     return yaw
 
 class ledObject(object):
-    def __init__(self, sample_size, z_pos=0.66, x_pos=0, distribu_flag=0):
+    def __init__(self, sample_size, z_pos=0.66, x_pos=0, distribu_flag=0, rotate_led=True):
         self.led_z_pos = z_pos #z position of LED in the matrix
         self.led_x_pos = x_pos
         self.sample_size = sample_size
@@ -39,6 +39,9 @@ class ledObject(object):
         self.rf = np.zeros((sample_size,3)) #matrix to hold final photon vectors after diffusor rotation
         self.diff_polar_angle = np.zeros(sample_size) #matrix to hold values of polar angle after diffuser effect
         self.prev_polar_angle = np.zeros(sample_size) #matrix to hold values of polar angle previous to diffuser effect
+
+        self.distribu_flag = distribu_flag
+        self.rotate_led = rotate_led
 
     def calcLEDRotationMatrixes(self, dist_to_targetcenter):
         #LED position angles
@@ -62,11 +65,11 @@ class ledObject(object):
         self.diff_theta = diff_theta*math.pi/180 #diffusor view angle
 
         for i in range(0, self.sample_size):
-            if distribu_flag:
-                if i > sample_size/2:
-                    self.theta[i] = -self.theta[i-sample_size/2]
+            if self.distribu_flag:
+                if i > self.sample_size//2:
+                    self.theta[i] = -self.theta[i-self.sample_size//2]
                 else:
-                    self.theta[i] = weibullvariate(20, 1.5)
+                    self.theta[i] = self._alternateBullDistribution()*math.pi/180
             else:
                 self.theta[i] = gauss(0, self.light_theta) #LED polar angle (from viewangle)
             self.phi[i] = randrange(0, 360)*math.pi/180 #LED azimuthal angle
@@ -87,16 +90,18 @@ class ledObject(object):
             #self.ri[i,0] += self.led_x_pos
             #self.ri[i,2] += self.led_z_pos
 
-            if self.led_z_pos != 0 and self.led_x_pos ==0:
+            if self.led_z_pos != 0 and self.led_x_pos ==0 and self.rotate_led:
                 self.rri[i,:] = np.dot(self.ri[i,:], self.Rx)
-            elif self.led_z_pos == 0 and self.led_x_pos != 0:
+            elif self.led_z_pos == 0 and self.led_x_pos != 0 and self.rotate_led:
                 self.rri[i,:] = np.dot(self.ri[i,:], self.Rz)
-            elif self.led_z_pos != 0 and self.led_x_pos != 0:
+            elif self.led_z_pos != 0 and self.led_x_pos != 0 and self.rotate_led:
                 self.rri[i,:] = np.dot(self.ri[i,:], self.Rx)
                 self.rri[i,:] = np.dot(self.rri[i,:], self.Rz)
+            else:
+                self.rri[i,:] = self.ri[i,:]
             #if both zero, do nothing
 
-            #self.auxrri[i,:] = self.rri[i,:]
+            self.auxrri[i,:] = self.rri[i,:]
             #boost vector to diffusor
             self.diff_points[i,:] = self._intersectWithPlane(self.dist_to_diff, self.rri[i,:], self.led_x_pos, self.led_z_pos)
             r = math.sqrt(math.pow(self.rri[i,0],2)+math.pow(self.rri[i,1],2)+math.pow(self.rri[i,2],2))
@@ -161,3 +166,11 @@ class ledObject(object):
         x = t*d[0] + xi
         z = t*d[2] + zi
         return [x,y_val,z]
+
+    def _alternateBullDistribution(self, lmbda=20, k=1.5):
+        theta = weibullvariate(lmbda, k)-(lmbda//4)
+        if theta > 75:
+            theta = gauss(45,5)
+        elif theta < 0:
+            theta = gauss(7.5,3)
+        return theta
