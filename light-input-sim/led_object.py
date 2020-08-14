@@ -64,6 +64,7 @@ class ledObject(object):
         self.light_theta = light_theta*math.pi/180 #led view angle
         self.diff_theta = diff_theta*math.pi/180 #diffusor view angle
 
+        print("Calcluating diffusor effect")
         for i in range(0, self.sample_size):
             if self.distribu_flag:
                 if i > self.sample_size//2:

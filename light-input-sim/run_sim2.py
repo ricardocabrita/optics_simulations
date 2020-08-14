@@ -2,7 +2,7 @@ from led_object import ledObject
 import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
-    sample_size = 10000000
+    sample_size = 1000000
     distance_to_diffusorCenter = [1.27, 2.54, 3.5, 5.08]
     dist_to_pinh = 1.27
     pinh_rad = 0.15

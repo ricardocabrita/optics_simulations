@@ -1,5 +1,6 @@
 from led_object import ledObject
 import matplotlib.pyplot as plt
+import math
 
 '''
     sim for smd LEDs
@@ -8,8 +9,8 @@ import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
     sample_size = 1000000
-    distance_to_diffusorCenter = 3.5
-    dist_to_pinh = 1.27
+    distance_to_diffusorCenter = 7.62
+    dist_to_pinh = 2.54
     pinh_rad = 0.15
     light_theta = 7.5
     diff_theta = 7.5
@@ -29,12 +30,21 @@ if __name__ == "__main__":
     capx0 = ledUVsmd.cap_ph_xpos
     capz0 = ledUVsmd.cap_ph_zpos
     print("2inch from diffusor, half inch from pinhole - Got {}/{} through pinhole!".format(phcount, sample_size))
-    n2, bins2, patches2 = plt.hist(cap_angle, nbins, density=True, color='r',histtype='step', label="a=2.0'',c=0.5''")
+    n2, bins2, patches2 = plt.hist(cap_angle, nbins, density=True, color='r',histtype='step', label="a=2.0'',c=1''")
+    plt.xlabel('degrees')
+    plt.ylabel('rel # photons, n={}'.format(sample_size))
+    plt.legend()
 
     fig2 = plt.figure(2)
-    plt.scatter(capx0, capz0, c='g',label="a=2.0'',c=1.0''")
+    plt.scatter(capx0, capz0, c='r',label="a=2.0'',c=1''")
+    plt.xlabel('cm')
+    plt.ylabel('cm')
+    plt.legend()
 
     fig3 = plt.figure(3)
-    n, bins, patches = plt.hist(ledUVsmd.theta, nbins, density=True, color='r',histtype='step', label="a=2.0'',c=0.5''")
+    n, bins, patches = plt.hist(ledUVsmd.theta*180/math.pi, nbins, density=True, color='r',histtype='step', label="a=2.0'',c=1''")
+    plt.xlabel('degrees')
+    plt.ylabel('rel # photons, n={}'.format(sample_size))
+    plt.legend()
 
     plt.show()
