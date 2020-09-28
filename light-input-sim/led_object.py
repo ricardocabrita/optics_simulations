@@ -24,6 +24,7 @@ class ledObject(object):
         self.led_z_pos = z_pos #z position of LED in the matrix
         self.led_x_pos = x_pos
         self.sample_size = sample_size
+        print("Sample size: {}".format(self.sample_size))
         #auxiliary matrixes for quiver plots starting positions
         self.zeropos = np.zeros((sample_size,3))
         self.transpos = np.ones((sample_size, 3))
@@ -71,7 +72,7 @@ class ledObject(object):
                     self.theta[i] = -self.theta[i-self.sample_size//2]
                 else:
                     self.theta[i] = self._alternateBullDistribution()*math.pi/180
-            elif seld.distribution == "gauss":
+            elif self.distribution == "gauss":
                 self.theta[i] = gauss(0, self.light_theta) #LED polar angle (from viewangle)
             else:
                 print("Error, unknown distribution: {}".format(self.distribution))
@@ -84,8 +85,8 @@ class ledObject(object):
             # self.ri[i, 1] = math.cos(self.theta[i])
             # self.ri[i, 2] = math.sin(self.theta[i])*math.cos(self.phi[i])#+self.led_z_pos
             self.initial_vector[i,1] = 1 #y direction
-            self.initial_vector[i,:] = self._z_rotation(self.ri[i,:], self.theta[i])
-            self.initial_vector[i,:] = self._y_rotation(self.ri[i,:], self.phi[i])
+            self.initial_vector[i,:] = self._z_rotation(self.initial_vector[i,:], self.theta[i])
+            self.initial_vector[i,:] = self._y_rotation(self.initial_vector[i,:], self.phi[i])
             #self.ri[i,0] += self.led_x_pos
             #self.ri[i,2] += self.led_z_pos
 
@@ -100,11 +101,11 @@ class ledObject(object):
                 self.rotated_vector[i,:] = self.initial_vector[i,:]
             #if both zero, do nothing
 
-            self.auxrri[i,:] = self.rotated_vector[i,:]#for plotting
+            self.auxrotated_vector[i,:] = self.rotated_vector[i,:]#for plotting
             #boost vector to diffusor
-            self.diff_points[i,:] = self.intersectWithPlane(self.dist_to_diff, self.rotated_vector[i,:], self.led_x_pos, self.led_z_pos)
-            r = math.sqrt(math.pow(self.rotated_vector[i,0],2)+math.pow(self.rotated_vector[i,1],2)+math.pow(self.rotated_vector[i,2],2))
-            self.prev_polar_angle[i] = (math.acos(self.rotated_vector[i,1]/r)*(180/math.pi))
+            self.diff_points[i,:] = self.intersectWithPlane(self.dist_to_diff, self.rotated_vector[i,:], xi=self.led_x_pos, zi=self.led_z_pos)
+            # r = math.sqrt(math.pow(self.rotated_vector[i,0],2)+math.pow(self.rotated_vector[i,1],2)+math.pow(self.rotated_vector[i,2],2))
+            # self.prev_polar_angle[i] = (math.acos(self.rotated_vector[i,1]/r)*(180/math.pi))
             #self.diff_radi[i] = math.sqrt(math.pow(self.rotated_vector[i,0],2)+math.pow(self.rotated_vector[i,2],2))
 
             diff_polar = gauss(0, self.diff_theta) #difusor polar angle
@@ -116,7 +117,8 @@ class ledObject(object):
             r = math.sqrt(math.pow(self.difused_vector[i,0],2)+math.pow(self.difused_vector[i,1],2)+math.pow(self.difused_vector[i,2],2))
             #self.diff_polar_angle[i] = 90 - (math.acos(self.difused_vector[i,2]/r)*(180/math.pi))
             self.diff_polar_angle[i] = (math.acos(self.difused_vector[i,1]/r)*(180/math.pi))
-            return True
+
+        return True
 
     def simPinholeEffect(self, dist_to_pinh, pinh_rad):
         #use only after simDiffusorEffect
@@ -125,15 +127,22 @@ class ledObject(object):
         self.cap_ph_zpos = []
         self.cap_points= []
         self.entry_points = []
+        self.entry_xpos = []
+        self.entry_zpos = []
         self.cap_polar_angle = []
         is_diam = 8.382
+        entry = 3.81
         pinh_y = self.dist_to_diff+dist_to_pinh
         for i in range(self.sample_size):
-            self.pinh_points[i,:] = self.intersectWithPlane(pinh_y, self.difused_vector[i,:],self.led_x_pos, self.led_z_pos)
+            self.pinh_points[i,:] = self.intersectWithPlane(pinh_y, self.difused_vector[i,:],xi=self.diff_points[i,0], yi=self.diff_points[i,1], zi=self.diff_points[i,2])
             test = math.pow(self.pinh_points[i,0],2)+math.pow(self.pinh_points[i,2],2)
             if(test < math.pow(pinh_rad,2)): #if inside pinh radi, calc points at cap and store polar angle
+                #print("pinh rsquare: {} test_radi: {} - diffuser polar angle: {}".format(math.pow(pinh_rad,2), test, self.diff_polar_angle[i]))
                 phcount += 1
-                self.cap_points.append(self.intersectWithPlane(pinh_y+is_diam, self.difused_vector[i,:],self.led_x_pos, self.led_z_pos)) #photon points at cap
+                self.entry_points.append(self.intersectWithPlane(pinh_y+entry, self.difused_vector[i,:],xi=self.diff_points[i,0], yi=self.diff_points[i,1], zi=self.diff_points[i,2])) #photon points at entry
+                self.entry_xpos.append(self.entry_points[-1][0])
+                self.entry_zpos.append(self.entry_points[-1][2])
+                self.cap_points.append(self.intersectWithPlane(pinh_y+entry+is_diam, self.difused_vector[i,:],xi=self.diff_points[i,0], yi=self.diff_points[i,1], zi=self.diff_points[i,2])) #photon points at cap
                 self.cap_ph_xpos.append(self.cap_points[-1][0])
                 self.cap_ph_zpos.append(self.cap_points[-1][2])
                 #r = math.sqrt(math.pow(self.difused_vector[i,0],2)+math.pow(self.cap_photons[-1][1],2)+math.pow(self.cap_photons[-1][2],2))
@@ -155,10 +164,9 @@ class ledObject(object):
         ax.set_xlim3d(-0.4, 1)
         plt.show()
 
-    def intersectWithPlane(self, y_val, d, xi=0, zi=0):
+    def intersectWithPlane(self, y_val, d, xi=0, zi=0, yi=0):
         #plane parallel with XoZ with y = y_val
-        #yi = 0 always
-        t = y_val/d[1]
+        t = (y_val-yi)/d[1]
         x = t*d[0] + xi
         z = t*d[2] + zi
         return [x,y_val,z]
