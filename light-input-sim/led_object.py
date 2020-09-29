@@ -33,6 +33,7 @@ class ledObject(object):
         self.rotated_vector = np.zeros((sample_size,3)) #matrix to hold rotated (led position) photon vectors
         self.diff_radi = np.zeros(sample_size)
         self.diff_x = np.zeros(sample_size)
+        self.diff_y = np.zeros(sample_size)
         self.diff_z = np.zeros(sample_size)
         self.diff_points = np.zeros((sample_size,3)) #matriz to hold photon points at diffuser plane
         self.pinh_points = np.zeros((sample_size,3)) #matriz to hold photon points at the pinhole plane
@@ -64,7 +65,7 @@ class ledObject(object):
         self.light_theta = light_theta*math.pi/180 #led view angle
         self.diff_theta = diff_theta*math.pi/180 #diffusor view angle
 
-        print("Calculating diffuser effect")
+        print("Calculating diffuser effect, distance: {}".format(self.dist_to_diff))
         for i in range(0, self.sample_size):
             if self.distribution == "bull":
                 if i > self.sample_size//2:
@@ -77,7 +78,10 @@ class ledObject(object):
                 print("Error, unknown distribution: {}".format(self.distribution))
                 return False
 
-            self.phi[i] = randrange(0, 360)*math.pi/180 #LED azimuthal angle
+            self.phi[i] = randrange(0, 180)*math.pi/180 #LED azimuthal angle
+            if self.theta[i] < 0:
+                print("LOL")
+                self.phi[i] = -self.phi[i]
 
             #initial vector is (0,1,0) - y direction of propagation
             self.initial_vector[i,1] = 1
@@ -102,6 +106,7 @@ class ledObject(object):
             self.diff_points[i,:] = self.intersectWithPlane(self.dist_to_diff, self.rotated_vector[i,:], xi=self.led_x_pos, zi=self.led_z_pos)
 
             self.diff_x[i] = self.diff_points[i,0]
+            self.diff_y[i] = self.diff_points[i,1]
             self.diff_z[i] = self.diff_points[i,2]
 
             diff_polar = gauss(0, self.diff_theta) #difusor polar angle
@@ -126,6 +131,9 @@ class ledObject(object):
         self.entry_xpos = []
         self.entry_zpos = []
         self.cap_polar_angle = []
+        self.cut_vx = []
+        self.cut_vy = []
+        self.cut_vz = []
         is_diam = 8.382
         entry = 3.81
         pinh_y = self.dist_to_diff+dist_to_pinh
@@ -135,10 +143,13 @@ class ledObject(object):
             test = math.pow(self.pinh_points[i,0],2)+math.pow(self.pinh_points[i,2],2)
             if(test < math.pow(pinh_rad,2)): #if inside pinh radi, calc points at cap and store polar angle
                 phcount += 1
+                self.cut_vx.append(self.difused_vector[i,0])
+                self.cut_vy.append(self.difused_vector[i,1])
+                self.cut_vz.append(self.difused_vector[i,2])
                 self.entry_points.append(self.intersectWithPlane(pinh_y+entry, self.difused_vector[i,:],xi=self.diff_points[i,0], yi=self.diff_points[i,1], zi=self.diff_points[i,2])) #photon points at entry
-                print("test radi: {}, angle: {}".format(test, self.diff_polar_angle[i]))
-                print(self.pinh_points[i, :], self.difused_vector[i,:])
-                print(self.entry_points[-1])
+                # print("test radi: {}, angle: {}".format(test, self.diff_polar_angle[i]))
+                # print(self.pinh_points[i, :], self.difused_vector[i,:])
+                # print(self.entry_points[-1])
                 self.entry_xpos.append(self.entry_points[-1][0])
                 self.entry_zpos.append(self.entry_points[-1][2])
                 self.cap_points.append(self.intersectWithPlane(pinh_y+entry+is_diam, self.difused_vector[i,:],xi=self.diff_points[i,0], yi=self.diff_points[i,1], zi=self.diff_points[i,2])) #photon points at cap
