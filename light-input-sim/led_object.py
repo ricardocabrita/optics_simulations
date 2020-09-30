@@ -26,23 +26,25 @@ class ledObject(object):
         self.sample_size = sample_size
         print("Sample size: {}".format(self.sample_size))
         self.dist_to_diff = dist_to_diff
+        self.distribution = distribution
+        self.rotate_led = rotate_led
+        self.tube_rsq = math.pow(1.27, 2)
 
         self.theta = np.zeros(sample_size) #matriz to hold initial light polar angles
         self.phi = np.zeros(sample_size) #matrix to hold intial light azimuthal angles
         self.initial_vector = np.zeros((sample_size,3)) #matrix to hold inital photon vectors
         self.rotated_vector = np.zeros((sample_size,3)) #matrix to hold rotated (led position) photon vectors
         self.diff_radi = np.zeros(sample_size)
-        self.diff_x = np.zeros(sample_size)
-        self.diff_y = np.zeros(sample_size)
-        self.diff_z = np.zeros(sample_size)
         self.diff_points = np.zeros((sample_size,3)) #matriz to hold photon points at diffuser plane
         self.pinh_points = np.zeros((sample_size,3)) #matriz to hold photon points at the pinhole plane
         self.difused_vector = np.zeros((sample_size,3)) #matrix to hold final photon vectors after diffusor rotation
         self.diff_polar_angle = np.zeros(sample_size) #matrix to hold values of polar angle after diffuser effect
         self.prev_polar_angle = np.zeros(sample_size) #matrix to hold values of polar angle previous to diffuser effect
 
-        self.distribution = distribution
-        self.rotate_led = rotate_led
+        #store variable that is within the radius of the tube (0.5in, 1.27cm)
+        self.cut_dif_angle = []
+        self.cut_dif_points = []
+        self.cut_dif_vec = []
 
     def calcLEDRotationMatrixes(self, dist_to_targetcenter):
         #LED position angles
@@ -78,10 +80,7 @@ class ledObject(object):
                 print("Error, unknown distribution: {}".format(self.distribution))
                 return False
 
-            self.phi[i] = randrange(0, 180)*math.pi/180 #LED azimuthal angle
-            if self.theta[i] < 0:
-                print("LOL")
-                self.phi[i] = -self.phi[i]
+            self.phi[i] = randrange(0, 360)*math.pi/180 #LED azimuthal angle
 
             #initial vector is (0,1,0) - y direction of propagation
             self.initial_vector[i,1] = 1
@@ -105,10 +104,6 @@ class ledObject(object):
             #calculate points at difuser
             self.diff_points[i,:] = self.intersectWithPlane(self.dist_to_diff, self.rotated_vector[i,:], xi=self.led_x_pos, zi=self.led_z_pos)
 
-            self.diff_x[i] = self.diff_points[i,0]
-            self.diff_y[i] = self.diff_points[i,1]
-            self.diff_z[i] = self.diff_points[i,2]
-
             diff_polar = gauss(0, self.diff_theta) #difusor polar angle
             #polar angle in ref to y, is a rotation around the z axis
             self.difused_vector[i,:] = self._z_rotation(self.rotated_vector[i,:], diff_polar)
@@ -118,6 +113,12 @@ class ledObject(object):
             r = math.sqrt(math.pow(self.difused_vector[i,0],2)+math.pow(self.difused_vector[i,1],2)+math.pow(self.difused_vector[i,2],2))
 
             self.diff_polar_angle[i] = (math.acos(self.difused_vector[i,1]/r)*(180/math.pi))
+            #store values that make the tube radius cut
+            rsq = math.pow(self.diff_points[i,0],2) + math.pow(self.diff_points[i,2],2)
+            if rsq <= self.tube_rsq:
+                self.cut_dif_points.append(self.diff_points[i,:])
+                self.cut_dif_vec.append(self.difused_vector[i,:])
+                self.cut_dif_angle.append(self.diff_polar_angle[i])
 
         return True
 
