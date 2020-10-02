@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
     led2Inch = ledObject(sample_size,z_pos, x_pos)
     led2Inch.calcLEDRotationMatrixes(distance_to_diffusorCenter[3])
-    led2Inch.simDiffusorEffect(light_theta, diff_theta)
+    led2Inch.simDiffuserEffect(light_theta, diff_theta)
     phcount, cap_angle = led2Inch.simPinholeEffect(1.27, pinh_rad)
     capx0 = led2Inch.cap_ph_xpos
     capz0 = led2Inch.cap_ph_zpos

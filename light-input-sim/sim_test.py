@@ -23,7 +23,7 @@ if __name__ == "__main__":
     matplotlib.rc('font', **font)
     fig1 = plt.figure(1)
 
-    led2Inch.simDiffusorEffect(view_half_angle[0], diff_theta)
+    led2Inch.simDiffuserEffect(view_half_angle[0], diff_theta)
     phcount[0], cap_angle = led2Inch.simPinholeEffect(dist_to_pinh, pinh_rad)
     phcount[0]/sample_size
     print("View half angle {} - Got {}/{} through pinhole!".format(view_half_angle[0], phcount, sample_size))
@@ -32,7 +32,7 @@ if __name__ == "__main__":
     n2, bins2, patches2 = plt.hist(cap_angle, nbins, density=True, color='r',histtype='step', label="FHWM 4")
     plt.legend()
 
-    led2Inch.simDiffusorEffect(view_half_angle[1], diff_theta)
+    led2Inch.simDiffuserEffect(view_half_angle[1], diff_theta)
     phcount[1], cap_angle = led2Inch.simPinholeEffect(dist_to_pinh, pinh_rad)
     phcount[1]/sample_size
     print("View half angle {} - Got {}/{} through pinhole!".format(view_half_angle[1], phcount, sample_size))
@@ -41,7 +41,7 @@ if __name__ == "__main__":
     n2, bins2, patches2 = plt.hist(cap_angle, nbins, density=True, color='g',histtype='step', label="FHWM 8")
     plt.legend()
 
-    led2Inch.simDiffusorEffect(view_half_angle[2], diff_theta)
+    led2Inch.simDiffuserEffect(view_half_angle[2], diff_theta)
     phcount[2], cap_angle = led2Inch.simPinholeEffect(dist_to_pinh, pinh_rad)
     phcount[2]/sample_size
     print("View half angle {} - Got {}/{} through pinhole!".format(view_half_angle[2], phcount, sample_size))
@@ -50,7 +50,7 @@ if __name__ == "__main__":
     n2, bins2, patches2 = plt.hist(cap_angle, nbins, density=True, color='b',histtype='step', label="FHWM 10")
     plt.legend()
 
-    led2Inch.simDiffusorEffect(view_half_angle[3], diff_theta)
+    led2Inch.simDiffuserEffect(view_half_angle[3], diff_theta)
     phcount[3], cap_angle = led2Inch.simPinholeEffect(dist_to_pinh, pinh_rad)
     phcount[3]/sample_size
     print("View half angle {} - Got {}/{} through pinhole!".format(view_half_angle[3], phcount, sample_size))

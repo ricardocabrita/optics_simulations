@@ -14,7 +14,7 @@ if __name__ == "__main__":
     z1_pos = 0
     led1 = ledObject(sample_size, z_pos = z1_pos, x_pos = x1_pos, distribution="gauss", rotate_led=False)
     led1.dist_to_diff = distance_to_diffuserCenter
-    led1.simDiffusorEffect(led1_theta, diff_theta)
+    led1.simDiffuserEffect(led1_theta, diff_theta)
     print("[checkpoint] Done with diffusor simulation")
 
     phcount, cap_angle = led1.simPinholeEffect(5.5, 0.05)
@@ -24,7 +24,7 @@ if __name__ == "__main__":
     # z2_pos = 0
     # led2 = ledObject(sample_size, z_pos = z2_pos, x_pos = x2_pos, distribution="gauss", rotate_led=False)
     # led2.dist_to_diff = distance_to_diffuserCenter
-    # led2.simDiffusorEffect(led2_theta, diff_theta)
+    # led2.simDiffuserEffect(led2_theta, diff_theta)
     # print("[checkpoint] Done with diffusor simulation")
     #
     # led3_theta = 15
@@ -32,7 +32,7 @@ if __name__ == "__main__":
     # z3_pos = 0.7
     # led3 = ledObject(sample_size, z_pos = z3_pos, x_pos = x3_pos, distribution="gauss", rotate_led=False)
     # led3.dist_to_diff = distance_to_diffuserCenter
-    # led3.simDiffusorEffect(led3_theta, diff_theta)
+    # led3.simDiffuserEffect(led3_theta, diff_theta)
     # print("[checkpoint] Done with diffusor simulation")
 
 

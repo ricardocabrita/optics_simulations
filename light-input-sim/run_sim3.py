@@ -17,7 +17,7 @@ if __name__ == "__main__":
     led = ledObject(sample_size,z_pos, x_pos)
     for i in range(0,4):
         led.calcLEDRotationMatrixes(distance[i])
-        led.simDiffusorEffect(light_theta, diff_theta)
+        led.simDiffuserEffect(light_theta, diff_theta)
         for k in range(0,4):
             phcount[i,k], cap_angle = led.simPinholeEffect(distance[k], pinh_rad)
             print("{}cm LED-diff | {}cm diff-pinhole __ # photons {}/{}".format(distance[i],distance[k],phcount[i,k], sample_size))

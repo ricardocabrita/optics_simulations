@@ -24,7 +24,7 @@ if __name__ == "__main__":
     #ledUVsmd = ledObject(sample_size,z_pos, x_pos)
     #ledUVsmd.calcLEDRotationMatrixes(distance_to_diffusorCenter)
     ledUVsmd.dist_to_diff = distance_to_diffusorCenter
-    ledUVsmd.simDiffusorEffect(light_theta, diff_theta)
+    ledUVsmd.simDiffuserEffect(light_theta, diff_theta)
     print("[checkpoint] Done with diffusor simulation")
     phcount, cap_angle = ledUVsmd.simPinholeEffect(dist_to_pinh, pinh_rad)
     capx0 = ledUVsmd.cap_ph_xpos

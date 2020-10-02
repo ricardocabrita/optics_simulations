@@ -36,7 +36,6 @@ class ledObject(object):
         self.rotated_vector = np.zeros((sample_size,3)) #matrix to hold rotated (led position) photon vectors
         self.diff_radi = np.zeros(sample_size)
         self.diff_points = np.zeros((sample_size,3)) #matriz to hold photon points at diffuser plane
-        self.pinh_points = np.zeros((sample_size,3)) #matriz to hold photon points at the pinhole plane
         self.difused_vector = np.zeros((sample_size,3)) #matrix to hold final photon vectors after diffusor rotation
         self.diff_polar_angle = np.zeros(sample_size) #matrix to hold values of polar angle after diffuser effect
         self.prev_polar_angle = np.zeros(sample_size) #matrix to hold values of polar angle previous to diffuser effect
@@ -45,6 +44,10 @@ class ledObject(object):
         self.cut_dif_angle = []
         self.cut_dif_points = []
         self.cut_dif_vec = []
+
+        self.dif_vx = []
+        self.dif_vz = []
+
 
     def calcLEDRotationMatrixes(self, dist_to_targetcenter):
         #LED position angles
@@ -62,7 +65,7 @@ class ledObject(object):
 
         return self.Rx, self.Rz
 
-    def simDiffusorEffect(self, light_theta, diff_theta, seednr=19680801):
+    def simDiffuserEffect(self, light_theta, diff_theta, seednr=19680801):
         seed(seednr)#seed for random generator - reproducibility
         self.light_theta = light_theta*math.pi/180 #led view angle
         self.diff_theta = diff_theta*math.pi/180 #diffusor view angle
@@ -118,13 +121,20 @@ class ledObject(object):
             if rsq <= self.tube_rsq:
                 self.cut_dif_points.append(self.diff_points[i,:])
                 self.cut_dif_vec.append(self.difused_vector[i,:])
+                self.diff_vx = self.difused_vector[i,0]
+                self.diff_vx = self.difused_vector[i,2]
                 self.cut_dif_angle.append(self.diff_polar_angle[i])
 
         return True
 
-    def simPinholeEffect(self, dist_to_pinh, pinh_rad):
-        #use only after simDiffusorEffect
+    def simPinholeEffect(self, d1, d2, pinh_rad):
+        #use only after simDiffuserEffect
+        #d1 distance to first pinhole, d2 distance between first and second pinhle
+        #pinh_rad pinhole radius for both pinholes
         phcount = 0
+        self.pinh1_points = []
+        self.pinh2_points = []
+
         self.cap_ph_xpos = []
         self.cap_ph_zpos = []
         self.cap_points= []
@@ -137,26 +147,27 @@ class ledObject(object):
         self.cut_vz = []
         is_diam = 8.382
         entry = 3.81
-        pinh_y = self.dist_to_diff+dist_to_pinh
-        print("Pinhole y: {} -- +entry: {}".format(pinh_y, pinh_y+entry))
-        for i in range(self.sample_size):
-            self.pinh_points[i,:] = self.intersectWithPlane(pinh_y, self.difused_vector[i,:],xi=self.diff_points[i,0], yi=self.diff_points[i,1], zi=self.diff_points[i,2])
-            test = math.pow(self.pinh_points[i,0],2)+math.pow(self.pinh_points[i,2],2)
-            if(test < math.pow(pinh_rad,2)): #if inside pinh radi, calc points at cap and store polar angle
-                phcount += 1
-                self.cut_vx.append(self.difused_vector[i,0])
-                self.cut_vy.append(self.difused_vector[i,1])
-                self.cut_vz.append(self.difused_vector[i,2])
-                self.entry_points.append(self.intersectWithPlane(pinh_y+entry, self.difused_vector[i,:],xi=self.diff_points[i,0], yi=self.diff_points[i,1], zi=self.diff_points[i,2])) #photon points at entry
-                # print("test radi: {}, angle: {}".format(test, self.diff_polar_angle[i]))
-                # print(self.pinh_points[i, :], self.difused_vector[i,:])
-                # print(self.entry_points[-1])
-                self.entry_xpos.append(self.entry_points[-1][0])
-                self.entry_zpos.append(self.entry_points[-1][2])
-                self.cap_points.append(self.intersectWithPlane(pinh_y+entry+is_diam, self.difused_vector[i,:],xi=self.diff_points[i,0], yi=self.diff_points[i,1], zi=self.diff_points[i,2])) #photon points at cap
-                self.cap_ph_xpos.append(self.cap_points[-1][0])
-                self.cap_ph_zpos.append(self.cap_points[-1][2])
-                self.cap_polar_angle.append(self.diff_polar_angle[i])
+        pinh1_y = self.dist_to_diff+d1
+        pinh2_y = self.dist_to_diff+d2
+
+        pinhtest = math.pow(pinh_rad,2)
+        for i in range(len(self.cut_dif_points)):
+            pinh1_point = self.intersectWithPlane(pinh1_y, self.cut_dif_vec[i],xi=self.cut_dif_points[i][0], yi=self.cut_dif_points[i][1], zi=self.cut_dif_points[i][2])
+            if(math.pow(pinh1_point[0],2)+math.pow(pinh1_point[2],2) < pinhtest):
+                self.pinh1_points.append(pinh1_point)
+                pinh2_point = self.intersectWithPlane(pinh2_y, self.cut_dif_vec[i],xi=self.cut_dif_points[i][0], yi=self.cut_dif_points[i][1], zi=self.cut_dif_points[i][2])
+                if(math.pow(pinh2_point[0],2)+math.pow(pinh2_point[2],2) < pinhtest):#if inside second pinh radi, calc points at cap and store polar angle
+                    phcount += 1
+                    self.cut_vx.append(self.cut_dif_vec[i][0])
+                    self.cut_vy.append(self.cut_dif_vec[i][1])
+                    self.cut_vz.append(self.cut_dif_vec[i][2])
+                    self.entry_points.append(self.intersectWithPlane(pinh2_y+entry,self.cut_dif_vec[i],xi=self.cut_dif_points[i][0], yi=self.cut_dif_points[i][1], zi=self.cut_dif_points[i][2])) #photon points at entry
+                    self.entry_xpos.append(self.entry_points[-1][0])
+                    self.entry_zpos.append(self.entry_points[-1][2])
+                    self.cap_points.append(self.intersectWithPlane(pinh2_y+entry+is_diam, self.cut_dif_vec[i],xi=self.cut_dif_points[i][0], yi=self.cut_dif_points[i][1], zi=self.cut_dif_points[i][2])) #photon points at cap
+                    self.cap_ph_xpos.append(self.cap_points[-1][0])
+                    self.cap_ph_zpos.append(self.cap_points[-1][2])
+                    self.cap_polar_angle.append(self.diff_polar_angle[i])
 
         return phcount, self.cap_polar_angle
 

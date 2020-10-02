@@ -14,25 +14,25 @@ if __name__ == "__main__":
     z_pos = 0
     ledHalfInch = ledObject(sample_size,z_pos, x_pos)
     ledHalfInch.calcLEDRotationMatrixes(distance_to_diffusorCenter[0])
-    ledHalfInch.simDiffusorEffect(light_theta, diff_theta)
+    ledHalfInch.simDiffuserEffect(light_theta, diff_theta)
     phcount, angles = ledHalfInch.simPinholeEffect(dist_to_pinh, pinh_rad)
     print("0.5 inch from diffusor - Got {}/{} through pinhole!".format(phcount, sample_size))
 
     led1Inch = ledObject(sample_size,z_pos, x_pos)
     led1Inch.calcLEDRotationMatrixes(distance_to_diffusorCenter[1])
-    led1Inch.simDiffusorEffect(light_theta, diff_theta)
+    led1Inch.simDiffuserEffect(light_theta, diff_theta)
     phcount, angles = led1Inch.simPinholeEffect(dist_to_pinh, pinh_rad)
     print("1 inch from diffusor - Got {}/{} through pinhole!".format(phcount, sample_size))
 
     led1halfInch = ledObject(sample_size,z_pos, x_pos)
     led1halfInch.calcLEDRotationMatrixes(distance_to_diffusorCenter[2])
-    led1halfInch.simDiffusorEffect(light_theta, diff_theta)
+    led1halfInch.simDiffuserEffect(light_theta, diff_theta)
     phcount, angles = led1halfInch.simPinholeEffect(dist_to_pinh, pinh_rad)
     print("1.5 inch from diffusor - Got {}/{} through pinhole!".format(phcount, sample_size))
 
     led2Inch = ledObject(sample_size,z_pos, x_pos)
     led2Inch.calcLEDRotationMatrixes(distance_to_diffusorCenter[3])
-    led2Inch.simDiffusorEffect(light_theta, diff_theta)
+    led2Inch.simDiffuserEffect(light_theta, diff_theta)
     phcount, angles = led2Inch.simPinholeEffect(dist_to_pinh, pinh_rad)
     print("2inch from diffusor - Got {}/{} through pinhole!".format(phcount, sample_size))
 

@@ -13,19 +13,19 @@ if __name__ == "__main__":
 
     ledHalfInch = ledObject(sample_size, z_pos, x_pos)
     ledHalfInch.calcLEDRotationMatrixes(distance_to_diffusorCenter[0])
-    ledHalfInch.simDiffusorEffect(light_theta, diff_theta)
+    ledHalfInch.simDiffuserEffect(light_theta, diff_theta)
 
     led1Inch = ledObject(sample_size, z_pos, x_pos)
     led1Inch.calcLEDRotationMatrixes(distance_to_diffusorCenter[1])
-    led1Inch.simDiffusorEffect(light_theta, diff_theta)
+    led1Inch.simDiffuserEffect(light_theta, diff_theta)
 
     led1halfInch = ledObject(sample_size, z_pos, x_pos)
     led1halfInch.calcLEDRotationMatrixes(distance_to_diffusorCenter[2])
-    led1halfInch.simDiffusorEffect(light_theta, diff_theta)
+    led1halfInch.simDiffuserEffect(light_theta, diff_theta)
 
     led2Inch = ledObject(sample_size, z_pos, x_pos)
     led2Inch.calcLEDRotationMatrixes(distance_to_diffusorCenter[3])
-    led2Inch.simDiffusorEffect(light_theta, diff_theta)
+    led2Inch.simDiffuserEffect(light_theta, diff_theta)
 
     font = {'family' : 'normal',
             'weight' : 'normal',
