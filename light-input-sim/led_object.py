@@ -167,7 +167,7 @@ class ledObject(object):
                     self.cap_points.append(self.intersectWithPlane(pinh2_y+entry+is_diam, self.cut_dif_vec[i],xi=self.cut_dif_points[i][0], yi=self.cut_dif_points[i][1], zi=self.cut_dif_points[i][2])) #photon points at cap
                     self.cap_ph_xpos.append(self.cap_points[-1][0])
                     self.cap_ph_zpos.append(self.cap_points[-1][2])
-                    self.cap_polar_angle.append(self.diff_polar_angle[i])
+                    self.cap_polar_angle.append(self.cut_dif_angle[i])
 
         return phcount, self.cap_polar_angle
 
