@@ -145,8 +145,8 @@ class ledObject(object):
         self.cut_vx = []
         self.cut_vy = []
         self.cut_vz = []
-        is_diam = 8.382
-        entry = 3.81
+        is_diam = 7.9 #need to measure this distance
+        entry = 8.4493
         pinh1_y = self.dist_to_diff+d1
         pinh2_y = self.dist_to_diff+d2
 
