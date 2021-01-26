@@ -13,7 +13,7 @@ if __name__ == "__main__":
     pinh_rad = 0.05
 
     led405nm_theta = 15
-    led405nm = ledObject(sample_size, z_pos=0, x_pos=0.7, distribution='gauss', dist_to_diff=distance_to_diffuserCenter)
+    led405nm = ledObject(sample_size, z_pos=0, x_pos=0.7, distribution='gauss', dist_to_diff=distance_to_diffuserCenter, rotate_led=True)
     led405nm.calcLEDRotationMatrixes(distance_to_diffuserCenter)
     led405nm.simDiffuserEffect(led405nm_theta, diff_theta)
 

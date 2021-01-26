@@ -12,21 +12,21 @@ if __name__ == "__main__":
     d2 = 7.62 #3in
     pinh_rad = 0.05
 
-    x = 0.7
+    x = 0.225
 
     led405nm_theta = 15
-    led405nm = ledObject(sample_size, z_pos=0, x_pos=x, distribution='gauss', dist_to_diff=distance_to_diffuserCenter)
+    led405nm = ledObject(sample_size, z_pos=0, x_pos=x, distribution='gauss', dist_to_diff=distance_to_diffuserCenter, rotate_led=False)
     led405nm.calcLEDRotationMatrixes(distance_to_diffuserCenter)
     led405nm.simDiffuserEffect(led405nm_theta, diff_theta)
 
     ledwide_theta = 30
-    ledwide = ledObject(sample_size, z_pos=0, x_pos=x, distribution='gauss', dist_to_diff=distance_to_diffuserCenter)
-    led405nm.calcLEDRotationMatrixes(distance_to_diffuserCenter)
+    ledwide = ledObject(sample_size, z_pos=0, x_pos=x, distribution='gauss', dist_to_diff=distance_to_diffuserCenter, rotate_led=False)
+    ledwide.calcLEDRotationMatrixes(distance_to_diffuserCenter)
     ledwide.simDiffuserEffect(ledwide_theta, diff_theta)
 
     ledsmd_theta = 15
-    ledsmd = ledObject(sample_size, z_pos=0, x_pos=x, distribution='bull', dist_to_diff=distance_to_diffuserCenter)
-    led405nm.calcLEDRotationMatrixes(distance_to_diffuserCenter)
+    ledsmd = ledObject(sample_size, z_pos=0, x_pos=x, distribution='bull', dist_to_diff=distance_to_diffuserCenter, rotate_led=False)
+    ledsmd.calcLEDRotationMatrixes(distance_to_diffuserCenter)
     ledsmd.simDiffuserEffect(ledsmd_theta, diff_theta)
 
     fig1 = plt.figure(1)

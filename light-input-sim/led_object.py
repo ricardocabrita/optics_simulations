@@ -79,6 +79,8 @@ class ledObject(object):
                     self.theta[i] = self._alternateBullDistribution()*math.pi/180
             elif self.distribution == "gauss":
                 self.theta[i] = gauss(0, self.light_theta) #LED polar angle (from viewangle)
+            elif self.distribution == "box":
+                self.theta[i] = randrange(-light_theta, light_theta)*math.pi/180
             else:
                 print("Error, unknown distribution: {}".format(self.distribution))
                 return False
@@ -145,10 +147,11 @@ class ledObject(object):
         self.cut_vx = []
         self.cut_vy = []
         self.cut_vz = []
-        is_diam = 7.9 #need to measure this distance
-        entry = 8.4493
+        is_diam = 8.415 #need to measure this distance
+        entry = 5.8+2 #colimator 2 to window + light_trap length
         pinh1_y = self.dist_to_diff+d1
-        pinh2_y = self.dist_to_diff+d2
+        #pinh2_y = self.dist_to_diff+d2
+        pinh2_y = pinh1_y+d2
 
         pinhtest = math.pow(pinh_rad,2)
         for i in range(len(self.cut_dif_points)):
